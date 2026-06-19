@@ -14,12 +14,11 @@ import java.io.IOException;
 public class KafkaAvroSerializer implements Serializer<SpecificRecordBase> {
 
     private final EncoderFactory encoderFactory = EncoderFactory.get();
-    private BinaryEncoder encoder;
 
     public byte[] serialize(String topic, SpecificRecordBase data) {
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             byte[] result = null;
-            encoder = encoderFactory.binaryEncoder(out, encoder);
+            BinaryEncoder encoder = encoderFactory.binaryEncoder(out, null);
             if (data != null) {
                 DatumWriter<SpecificRecordBase> writer = new SpecificDatumWriter<>(data.getSchema());
                 writer.write(data, encoder);

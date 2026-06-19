@@ -6,7 +6,6 @@ import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Scope;
 
 import java.util.Properties;
 
@@ -14,7 +13,6 @@ import java.util.Properties;
 public class KafkaClientConfiguration {
 
     @Bean
-    @Scope("prototype")
     KafkaClient getClient() {
         return new KafkaClient() {
 
@@ -31,8 +29,10 @@ public class KafkaClientConfiguration {
             private void initProducer() {
                 Properties config = new Properties();
                 config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
-                config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
-                config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "ru.yandex.practicum.smarthometech.telemetry.collector.event.dal.KafkaAvroSerializer");
+                config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
+                        "org.apache.kafka.common.serialization.StringSerializer");
+                config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
+                        KafkaAvroSerializer.class.getName());
 
                 producer = new KafkaProducer<>(config);
             }
