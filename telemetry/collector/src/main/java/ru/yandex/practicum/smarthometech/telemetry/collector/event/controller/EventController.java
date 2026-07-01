@@ -11,24 +11,13 @@ import ru.yandex.practicum.grpc.telemetry.event.SensorEventProto;
 import ru.yandex.practicum.smarthometech.telemetry.collector.event.handler.hub.HubEventHandler;
 import ru.yandex.practicum.smarthometech.telemetry.collector.event.handler.sensor.SensorEventHandler;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
 @GrpcService
 public class EventController extends CollectorControllerGrpc.CollectorControllerImplBase {
-    private final Map<SensorEventProto.PayloadCase, SensorEventHandler> sensorEventHandlers;
+    private final SensorEventHandler sensorEventHandler;
     private final HubEventHandler hubEventHandler;
 
-    public EventController(Set<SensorEventHandler> sensorEventHandlers, HubEventHandler hubEventHandler) {
-        // Преобразовываем набор хендлеров в map, где ключ — тип события от конкретного датчика или хаба.
-        // Это нужно для упрощения поиска подходящего хендлера во время обработки событий
-        this.sensorEventHandlers = sensorEventHandlers.stream()
-                .collect(Collectors.toMap(
-                        SensorEventHandler::getMessageType,
-                        Function.identity()
-                ));
+    public EventController(SensorEventHandler sensorEventHandler, HubEventHandler hubEventHandler) {
+        this.sensorEventHandler = sensorEventHandler;
         this.hubEventHandler = hubEventHandler;
     }
 
@@ -42,13 +31,7 @@ public class EventController extends CollectorControllerGrpc.CollectorController
     @Override
     public void collectSensorEvent(SensorEventProto request, StreamObserver<Empty> responseObserver) {
         try {
-            // проверяем, есть ли обработчик для полученного события
-            if (sensorEventHandlers.containsKey(request.getPayloadCase())) {
-                // если обработчик найден, передаём событие ему на обработку
-                sensorEventHandlers.get(request.getPayloadCase()).handle(request);
-            } else {
-                throw new IllegalArgumentException("Не могу найти обработчик для события " + request.getPayloadCase());
-            }
+            sensorEventHandler.handle(request);
 
             // после обработки события возвращаем ответ клиенту
             responseObserver.onNext(Empty.getDefaultInstance());
