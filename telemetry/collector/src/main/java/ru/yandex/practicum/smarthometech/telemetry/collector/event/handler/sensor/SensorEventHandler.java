@@ -7,6 +7,7 @@ import ru.yandex.practicum.grpc.telemetry.event.SensorEventProto;
 // в компонент, который будет распределять получаемые события по
 // их обработчикам
 public interface SensorEventHandler {
+    SensorEventProto.PayloadCase getMessageType();
 
     void handle(SensorEventProto event);
 }
