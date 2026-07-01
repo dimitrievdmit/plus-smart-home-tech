@@ -1,6 +1,6 @@
 package ru.yandex.practicum.smarthometech.telemetry.collector.event.dal;
 
-import org.apache.avro.specific.SpecificRecordBase;
+import com.google.protobuf.Message;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -16,10 +16,10 @@ public class KafkaClientConfiguration {
     KafkaClient getClient() {
         return new KafkaClient() {
 
-            private Producer<String, SpecificRecordBase> producer;
+            private Producer<String, Message> producer;
 
             @Override
-            public Producer<String, SpecificRecordBase> getProducer() {
+            public Producer<String, Message> getProducer() {
                 if (producer == null) {
                     initProducer();
                 }
@@ -31,8 +31,7 @@ public class KafkaClientConfiguration {
                 config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
                 config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
                         "org.apache.kafka.common.serialization.StringSerializer");
-                config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
-                        KafkaAvroSerializer.class.getName());
+                config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaProtobufSerializer.class.getName());
 
                 producer = new KafkaProducer<>(config);
             }
