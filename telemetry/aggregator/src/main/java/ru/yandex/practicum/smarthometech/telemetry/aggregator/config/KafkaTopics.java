@@ -1,4 +1,4 @@
-package ru.yandex.practicum.smarthometech.telemetry.collector.event.dal;
+package ru.yandex.practicum.smarthometech.telemetry.aggregator.config;
 
 public class KafkaTopics {
     public static final String TELEMETRY_SENSORS_TOPIC = "telemetry.sensors.v1";
