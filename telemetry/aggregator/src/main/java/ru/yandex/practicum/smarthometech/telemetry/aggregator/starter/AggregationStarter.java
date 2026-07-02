@@ -13,7 +13,7 @@ import org.apache.kafka.common.errors.WakeupException;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
 import ru.yandex.practicum.kafka.telemetry.event.SensorsSnapshotAvro;
-import ru.yandex.practicum.smarthometech.telemetry.aggregator.config.KafkaTopics;
+import ru.yandex.practicum.smarthometech.telemetry.aggregator.config.KafkaTopicsProperties;
 import ru.yandex.practicum.smarthometech.telemetry.aggregator.service.SnapshotAggregator;
 
 import java.time.Duration;
@@ -30,13 +30,12 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AggregationStarter {
 
-    private final SnapshotAggregator snapshotAggregator;
-    private final Producer<String, SensorsSnapshotAvro> producer;
-
     private final KafkaConsumer<Void, SensorEventAvro> consumer;
+    private final Producer<String, SensorsSnapshotAvro> producer;
+    private final SnapshotAggregator snapshotAggregator;
+    private final KafkaTopicsProperties topicsProperties;
 
     private static final Duration POLL_TIMEOUT = Duration.ofMillis(1000);
-    private final List<String> TOPICS = List.of(KafkaTopics.TELEMETRY_SENSORS_TOPIC);
 
     private final Map<TopicPartition, OffsetAndMetadata> currentOffsets = new HashMap<>();
 
@@ -50,8 +49,9 @@ public class AggregationStarter {
             // Добавляем shutdown hook для корректного завершения
             Runtime.getRuntime().addShutdownHook(new Thread(consumer::wakeup));
 
-            consumer.subscribe(TOPICS);
-            log.info("Aggregator подписан на топики: {}", TOPICS);
+            List<String> topics = List.of(topicsProperties.getSensors());
+            consumer.subscribe(topics);
+            log.info("Aggregator подписан на топики: {}", topics);
 
             // Цикл опроса и обработки событий
             //noinspection InfiniteLoopStatement
@@ -103,7 +103,7 @@ public class AggregationStarter {
             SensorsSnapshotAvro snapshot = updatedSnapshot.get();
             // Ключ - hubId, значение - снапшот
             ProducerRecord<String, SensorsSnapshotAvro> producerRecord =
-                    new ProducerRecord<>(KafkaTopics.TELEMETRY_SNAPSHOTS_TOPIC, snapshot.getHubId(), snapshot);
+                    new ProducerRecord<>(topicsProperties.getSnapshots(), snapshot.getHubId(), snapshot);
             producer.send(producerRecord, (metadata, exception) -> {
                 if (exception != null) {
                     log.error("Ошибка отправки снапшота для хаба {}: {}", snapshot.getHubId(), exception.getMessage());

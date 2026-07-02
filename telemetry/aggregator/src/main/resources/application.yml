@@ -1,0 +1,14 @@
+kafka:
+  bootstrap-servers: localhost:9092
+  consumer:
+    group-id: aggregator-sensor-group
+    auto-offset-reset: earliest
+    key-deserializer: org.apache.kafka.common.serialization.VoidDeserializer
+    value-deserializer: ru.yandex.practicum.smarthometech.telemetry.aggregator.serialization.SensorEventDeserializer
+  producer:
+    key-serializer: org.apache.kafka.common.serialization.StringSerializer
+    value-serializer: ru.yandex.practicum.smarthometech.telemetry.aggregator.serialization.KafkaAvroSerializer
+  topics:
+    sensors: telemetry.sensors.v1
+    hubs: telemetry.hubs.v1
+    snapshots: telemetry.snapshots.v1
