@@ -50,12 +50,12 @@ public class SnapshotAggregator {
         if (oldState != null) {
             // Сравнение временных меток: если старые данные новее события, выходим
             if (oldState.getTimestamp() != null && oldState.getTimestamp().isAfter(eventTimestamp)) {
-                log.debug("Событие для датчика {} проигнорировано (старое состояние новее)", sensorId);
+                log.info("Событие для датчика {} проигнорировано (старое состояние новее)", sensorId);
                 return Optional.empty();
             }
             // Если данные полностью идентичны, обновление не требуется
             if (oldState.getData() != null && oldState.getData().equals(eventPayload)) {
-                log.debug("Событие для датчика {} не изменилось", sensorId);
+                log.info("Событие для датчика {} не изменилось", sensorId);
                 return Optional.empty();
             }
         }
