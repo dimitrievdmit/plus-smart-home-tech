@@ -1,4 +1,4 @@
-package ru.yandex.practicum.smarthometech.telemetry.aggregator.serialization;
+package ru.yandex.practicum.smarthometech.telemetry.analyzer.serialization;
 
 import org.apache.avro.Schema;
 import org.apache.avro.io.BinaryDecoder;
@@ -23,7 +23,6 @@ public class BaseAvroDeserializer<T extends SpecificRecordBase> implements Deser
 
     @Override
     public T deserialize(String topic, byte[] data) {
-        // Код десериализации двоичных данных
         try {
             if (data != null) {
                 BinaryDecoder decoder = decoderFactory.binaryDecoder(data, null);
@@ -31,7 +30,7 @@ public class BaseAvroDeserializer<T extends SpecificRecordBase> implements Deser
             }
             return null;
         } catch (Exception e) {
-            throw new DeserializationException("Ошибка десериализации данных из топика [" + topic + "]", e);
+            throw new DeserializationException("Ошибка десериализации из топика [" + topic + "]", e);
         }
     }
 }

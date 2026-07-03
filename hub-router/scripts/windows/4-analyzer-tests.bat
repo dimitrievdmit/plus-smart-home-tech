@@ -27,4 +27,4 @@ java -jar "%JAR_PATH%" ^
 
 echo.
 echo  Тест завершён. Проверьте результаты в консоли выше.
-pause
+cmd /k
