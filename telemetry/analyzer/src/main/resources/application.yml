@@ -9,8 +9,6 @@ kafka:
       group-id: analyzer-snapshots
       auto-offset-reset: earliest
       max-poll-records: 1000
-      commit-batch-size: 50
-      poll-timeout-millis: 1000
   topics:
     hubs: telemetry.hubs.v1
     snapshots: telemetry.snapshots.v1

@@ -11,6 +11,4 @@ public class SnapshotsConsumerProperties {
     private String groupId;
     private String autoOffsetReset;
     private int maxPollRecords;
-    private int commitBatchSize;
-    private int pollTimeoutMillis;
 }

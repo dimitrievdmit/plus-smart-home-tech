@@ -11,7 +11,6 @@ import org.apache.kafka.common.errors.WakeupException;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.kafka.telemetry.event.SensorsSnapshotAvro;
 import ru.yandex.practicum.smarthometech.telemetry.analyzer.config.KafkaTopicsProperties;
-import ru.yandex.practicum.smarthometech.telemetry.analyzer.config.SnapshotsConsumerProperties;
 import ru.yandex.practicum.smarthometech.telemetry.analyzer.service.ScenarioAnalyzer;
 
 import java.time.Duration;
@@ -27,10 +26,9 @@ public class SnapshotProcessor {
     private final KafkaConsumer<String, SensorsSnapshotAvro> consumer;
     private final ScenarioAnalyzer analyzer;
     private final KafkaTopicsProperties topicsProperties;
-    private final SnapshotsConsumerProperties props;
 
-    private final Duration POLL_TIMEOUT = Duration.ofMillis(props.getPollTimeoutMillis());
-    private final int COMMIT_BATCH_SIZE = props.getCommitBatchSize();
+    private static final Duration POLL_TIMEOUT = Duration.ofMillis(1000);
+    private static final int COMMIT_BATCH_SIZE = 50;
 
     public void start() {
         try {
