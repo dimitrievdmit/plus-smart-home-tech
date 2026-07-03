@@ -20,6 +20,7 @@ public class SnapshotAggregator {
 
     /**
      * Обновляет снапшот данными из события.
+     *
      * @return обновлённый снапшот, если состояние изменилось; иначе Optional.empty()
      */
     public Optional<SensorsSnapshotAvro> updateState(SensorEventAvro event) {
