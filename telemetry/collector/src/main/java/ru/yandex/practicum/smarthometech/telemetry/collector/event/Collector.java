@@ -4,9 +4,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class PlusSmartHomeTechCollector {
+public class Collector {
 
     public static void main(String[] args) {
-        SpringApplication.run(PlusSmartHomeTechCollector.class, args);
+        SpringApplication.run(Collector.class, args);
     }
 }
