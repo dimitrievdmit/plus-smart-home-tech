@@ -1,4 +1,4 @@
-package ru.yandex.practicum.smarthometech.infra.configserver;
+package ru.yandex.practicum;
 
 
 import org.springframework.boot.SpringApplication;
