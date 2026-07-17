@@ -38,4 +38,9 @@ public class ShoppingCartClientFallback implements ShoppingCartClient {
     public ShoppingCartDto changeProductQuantity(String username, ChangeProductQuantityRequest request) {
         throw new ServiceUnavailableException(SERVICE_NAME);
     }
+
+    @Override
+    public List<ShoppingCartDto> getDeactivatedCarts(String username) {
+        throw new ServiceUnavailableException(SERVICE_NAME);
+    }
 }
