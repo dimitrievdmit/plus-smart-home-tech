@@ -1,36 +1,34 @@
 package ru.yandex.practicum.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.dto.*;
-import ru.yandex.practicum.feign.WarehouseClient;
 import ru.yandex.practicum.service.AddressService;
 import ru.yandex.practicum.service.WarehouseService;
 
 @RestController
 @RequestMapping("/api/v1/warehouse")
 @RequiredArgsConstructor
-public class WarehouseController implements WarehouseClient {
+public class WarehouseController {
     private final WarehouseService warehouseService;
     private final AddressService addressService;
 
-    @Override
-    public void newProductInWarehouse(NewProductInWarehouseRequest request) {
+    @PutMapping
+    public void newProductInWarehouse(@RequestBody NewProductInWarehouseRequest request) {
         warehouseService.addNewProduct(request);
     }
 
-    @Override
-    public BookedProductsDto checkProductQuantityEnoughForShoppingCart(ShoppingCartDto cartDto) {
+    @PostMapping("/check")
+    public BookedProductsDto checkProductQuantityEnoughForShoppingCart(@RequestBody ShoppingCartDto cartDto) {
         return warehouseService.checkCart(cartDto);
     }
 
-    @Override
-    public void addProductToWarehouse(AddProductToWarehouseRequest request) {
+    @PostMapping("/add")
+    public void addProductToWarehouse(@RequestBody AddProductToWarehouseRequest request) {
         warehouseService.addProductQuantity(request);
     }
 
-    @Override
+    @GetMapping("/address")
     public AddressDto getWarehouseAddress() {
         return addressService.getAddress();
     }

@@ -142,20 +142,34 @@ public class ShoppingStoreService {
         }
 
         List<Sort.Order> orders = new ArrayList<>();
-        for (String sortParam : sort) {
-            if (sortParam == null || sortParam.isBlank()) {
+        String pendingProperty = null;
+
+        for (String token : sort) {
+            if (token == null || token.isBlank()) {
                 continue;
             }
-            String[] parts = sortParam.split(",");
-            String property = parts[0].trim();
-            Sort.Direction direction = Sort.Direction.ASC;
-            if (parts.length > 1) {
-                String dir = parts[1].trim().toLowerCase();
-                if ("desc".equals(dir)) {
-                    direction = Sort.Direction.DESC;
+            String trimmed = token.trim();
+            String lower = trimmed.toLowerCase();
+
+            if ("asc".equals(lower) || "desc".equals(lower)) {
+                // Это направление – применяем к предыдущему свойству
+                if (pendingProperty != null) {
+                    Sort.Direction direction = "desc".equals(lower) ? Sort.Direction.DESC : Sort.Direction.ASC;
+                    orders.add(new Sort.Order(direction, pendingProperty));
+                    pendingProperty = null;
                 }
+                // Если нет ожидающего свойства, игнорируем (или можно считать свойством с именем asc/desc, но это маловероятно)
+            } else {
+                // Это новое свойство – если было незавершённое, фиксируем его с направлением по умолчанию
+                if (pendingProperty != null) {
+                    orders.add(new Sort.Order(Sort.Direction.ASC, pendingProperty));
+                }
+                pendingProperty = trimmed;
             }
-            orders.add(new Sort.Order(direction, property));
+        }
+        // Обрабатываем последнее ожидающее свойство
+        if (pendingProperty != null) {
+            orders.add(new Sort.Order(Sort.Direction.ASC, pendingProperty));
         }
 
         log.info("Разобранные параметры сортировки: {}", orders);
