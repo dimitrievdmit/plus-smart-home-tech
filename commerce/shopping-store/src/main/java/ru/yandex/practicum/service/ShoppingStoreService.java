@@ -88,7 +88,10 @@ public class ShoppingStoreService {
         product.setImageSrc(dto.getImageSrc());
         product.setProductCategory(dto.getProductCategory());
         product.setPrice(dto.getPrice());
+        product.setProductState(dto.getProductState() != null ? dto.getProductState() : product.getProductState());
+        product.setQuantityState(dto.getQuantityState() != null ? dto.getQuantityState() : product.getQuantityState());
         product = productRepository.save(product);
+        log.info("Товар обновлён: {}", product.getProductId());
         return mapToDto(product);
     }
 
@@ -145,7 +148,7 @@ public class ShoppingStoreService {
             }
             String[] parts = sortParam.split(",");
             String property = parts[0].trim();
-            Sort.Direction direction = Sort.Direction.ASC; // по умолчанию сортировка по возрастанию
+            Sort.Direction direction = Sort.Direction.ASC;
             if (parts.length > 1) {
                 String dir = parts[1].trim().toLowerCase();
                 if ("desc".equals(dir)) {

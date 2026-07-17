@@ -3,6 +3,7 @@ package ru.yandex.practicum.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.dto.ShoppingCartDto;
 import ru.yandex.practicum.exception.NoProductsInShoppingCartException;
 import ru.yandex.practicum.feign.WarehouseClient;
@@ -11,54 +12,69 @@ import ru.yandex.practicum.model.CartState;
 import ru.yandex.practicum.model.ShoppingCart;
 import ru.yandex.practicum.repository.ShoppingCartRepository;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ShoppingCartService {
     private final ShoppingCartRepository cartRepository;
     private final WarehouseClient warehouseClient;
 
     public ShoppingCartDto getCart(String username) {
-        log.info("Получение корзины пользователя: {}", username);
-        ShoppingCart cart = getOrCreateActiveCart(username);
-        return mapToDto(cart);
-    }
-
-    public ShoppingCartDto addProducts(String username, Map<UUID, Long> products) {
-        log.info("Добавление товаров в корзину пользователя {}: {}", username, products.keySet());
-        ShoppingCart cart = getOrCreateActiveCart(username);
-        ShoppingCartDto cartDto = mapToDto(cart);
-        // Слияние товаров
-        Map<UUID, Long> merged = new HashMap<>(cartDto.getProducts());
-        products.forEach((id, qty) -> merged.merge(id, qty, Long::sum));
-        cartDto.setProducts(merged);
-        // Проверка на складе
-        warehouseClient.checkProductQuantityEnoughForShoppingCart(cartDto);
-        // Если исключения от Circuit Breaker нет, обновляем элементы корзины
-        updateCartItems(cart, merged);
-        return mapToDto(cart);
-    }
-
-    public void deactivateCart(String username) {
-        log.info("Деактивация корзины пользователя: {}", username);
+        log.info("Получение корзины пользователя {}", username);
         ShoppingCart cart = cartRepository.findByUsernameAndState(username, CartState.ACTIVE)
-                .orElseThrow(() -> new NoProductsInShoppingCartException("Нет активной корзины"));
+                .orElseGet(() -> {
+                    log.info("Создание новой корзины для {}", username);
+                    return createCart(username);
+                });
+        return mapToDto(cart);
+    }
+
+    @Transactional
+    public ShoppingCartDto addProducts(String username, Map<UUID, Long> products) {
+        log.info("Добавление товаров в корзину {}: {}", username, products.keySet());
+        ShoppingCart cart = getOrCreateActiveCart(username);
+
+        // Формируем предполагаемое новое содержимое корзины
+        Map<UUID, Long> currentProducts = getProductsMap(cart);
+        products.forEach((id, qty) -> currentProducts.merge(id, qty, Long::sum));
+
+        // Проверка на складе (теперь склад ещё и резервирует товар)
+        ShoppingCartDto tempDto = new ShoppingCartDto(cart.getShoppingCartId(), new HashMap<>(currentProducts));
+        warehouseClient.checkProductQuantityEnoughForShoppingCart(tempDto);
+
+        // Обновляем элементы корзины в БД
+        updateCartItems(cart, currentProducts);
+        cartRepository.save(cart);
+        return mapToDto(cart);
+    }
+
+    @Transactional
+    public void deactivateCart(String username) {
+        log.info("Деактивация корзины пользователя {}", username);
+        ShoppingCart cart = cartRepository.findByUsernameAndState(username, CartState.ACTIVE)
+                .orElseThrow(() -> new NoProductsInShoppingCartException("Нет активной корзины для деактивации"));
         cart.setState(CartState.DEACTIVATED);
         cartRepository.save(cart);
     }
 
+    @Transactional
     public ShoppingCartDto removeProducts(String username, List<UUID> productIds) {
-        log.info("Удаление продуктов из корзины пользователя: {}", username);
+        log.info("Удаление товаров из корзины {}: {}", username, productIds);
         ShoppingCart cart = getOrCreateActiveCart(username);
         cart.getItems().removeIf(item -> productIds.contains(item.getProductId()));
         cartRepository.save(cart);
         return mapToDto(cart);
     }
 
+    @Transactional
     public ShoppingCartDto changeQuantity(String username, UUID productId, long newQuantity) {
-        log.info("Изменить количество товаров в корзине пользователя: {}", username);
+        log.info("Изменение количества товара {} в корзине {}: новое количество {}", productId, username, newQuantity);
         ShoppingCart cart = getOrCreateActiveCart(username);
         CartItem item = cart.getItems().stream()
                 .filter(i -> i.getProductId().equals(productId))
@@ -71,6 +87,16 @@ public class ShoppingCartService {
         }
         cartRepository.save(cart);
         return mapToDto(cart);
+    }
+
+    // В спецификации такого метода нет, но
+    // ТЗ требует возможность просматривать уже добавленные позиции в деактивированных корзинах
+    public List<ShoppingCartDto> getDeactivatedCarts(String username) {
+        log.info("Запрос деактивированных корзин пользователя {}", username);
+        List<ShoppingCart> deactivated = cartRepository.findAllByUsernameAndState(username, CartState.DEACTIVATED);
+        return deactivated.stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
     }
 
     private ShoppingCart createCart(String username) {
@@ -96,14 +122,15 @@ public class ShoppingCartService {
         });
     }
 
-    private ShoppingCartDto mapToDto(ShoppingCart cart) {
-        ShoppingCartDto dto = new ShoppingCartDto();
-        dto.setShoppingCartId(cart.getShoppingCartId());
-        Map<UUID, Long> productsMap = new HashMap<>();
+    private Map<UUID, Long> getProductsMap(ShoppingCart cart) {
+        Map<UUID, Long> map = new HashMap<>();
         if (cart.getItems() != null) {
-            cart.getItems().forEach(item -> productsMap.put(item.getProductId(), item.getQuantity()));
+            cart.getItems().forEach(item -> map.put(item.getProductId(), item.getQuantity()));
         }
-        dto.setProducts(productsMap);
-        return dto;
+        return map;
+    }
+
+    private ShoppingCartDto mapToDto(ShoppingCart cart) {
+        return new ShoppingCartDto(cart.getShoppingCartId(), getProductsMap(cart));
     }
 }
