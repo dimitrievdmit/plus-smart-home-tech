@@ -1,10 +1,9 @@
 package ru.yandex.practicum.dto;
 
+import jakarta.validation.constraints.DecimalMin;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import jakarta.validation.constraints.DecimalMin;
 
 @Data
 @NoArgsConstructor

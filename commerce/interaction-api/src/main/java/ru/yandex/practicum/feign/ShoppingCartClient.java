@@ -30,6 +30,7 @@ public interface ShoppingCartClient {
     @PostMapping("/api/v1/shopping-cart/change-quantity")
     ShoppingCartDto changeProductQuantity(@RequestParam("username") String username,
                                           @RequestBody ChangeProductQuantityRequest request);
+
     // В спецификации такого метода нет, но
     // ТЗ требует возможность просматривать уже добавленные позиции в деактивированных корзинах
     @GetMapping("/api/v1/shopping-cart/history")

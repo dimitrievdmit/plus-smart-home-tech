@@ -1,9 +1,9 @@
 package ru.yandex.practicum.model;
 
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import jakarta.persistence.*;
 import java.util.UUID;
 
 @Entity
