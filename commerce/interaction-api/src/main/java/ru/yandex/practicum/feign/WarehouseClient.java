@@ -8,7 +8,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import ru.yandex.practicum.dto.*;
 import ru.yandex.practicum.feign.fallback.WarehouseClientFallback;
 
-@FeignClient(name = "warehouse", fallback = WarehouseClientFallback.class)
+@FeignClient(name = "warehouse", fallback = WarehouseClientFallback.class,
+        configuration = FeignConfig.class)
 public interface WarehouseClient {
 
     @PutMapping("/api/v1/warehouse")

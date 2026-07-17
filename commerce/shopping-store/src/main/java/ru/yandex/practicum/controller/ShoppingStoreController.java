@@ -17,11 +17,10 @@ public class ShoppingStoreController {
 
     private final ShoppingStoreService service;
 
-    @GetMapping
     public PageProductDto getProducts(@RequestParam("category") ProductCategory category,
                                       @RequestParam("page") int page,
                                       @RequestParam("size") int size,
-                                      @RequestParam("sort") String[] sort) {
+                                      @RequestParam(value = "sort", required = false) String[] sort) {
         return service.getProducts(category, page, size, sort);
     }
 

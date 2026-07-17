@@ -103,9 +103,12 @@ public class WarehouseService {
         } else {
             state = QuantityState.MANY;
         }
-
-        SetProductQuantityStateRequest request = new SetProductQuantityStateRequest(productId, state);
-        storeClient.setProductQuantityState(request);
-        log.info("Обновлён статус количества товара {}: {}", productId, state);
+        try {
+            SetProductQuantityStateRequest request = new SetProductQuantityStateRequest(productId, state);
+            storeClient.setProductQuantityState(request);
+            log.info("Обновлён статус количества товара {}: {}", productId, state);
+        } catch (Exception e) {
+            log.info("Ошибка при обновлении статуса количества товара {}: {}", productId, state);
+        }
     }
 }
