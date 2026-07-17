@@ -1,14 +1,15 @@
 spring:
   application:
     name: discovery-server
-  config:
-    import: "configserver:"
-cloud:
-  config:
-    fail-fast: true
-    retry:
-      useRandomPolicy: true
-      max-interval: 6000
-    discovery:
-      enabled: true
-      serviceId: config-server
+
+server:
+  port: 8761
+
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    registerWithEureka: false
+    fetchRegistry: false
+    serviceUrl:
+      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
