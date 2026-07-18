@@ -42,7 +42,7 @@ public class ShoppingStoreService {
     public PageProductDto getProducts(ProductCategory category, int page, int size, String[] sort) {
         log.info("Запрос страницы товаров: категория={}, страница={}, размер={}", category, page, size);
         Pageable pageable = PageRequest.of(page, size, parseSort(sort));
-        Page<Product> productPage = productRepository.findAllByProductStateAndProductCategory(ProductState.ACTIVE, category, pageable);
+        Page<Product> productPage = productRepository.findAllByProductCategory(category, pageable);
 
         PageProductDto result = new PageProductDto();
         result.setContent(productPage.getContent().stream().map(this::mapToDto).toList());
