@@ -16,6 +16,11 @@ spring:
     openfeign:
       circuitbreaker:
         enabled: true
+      client:
+        config:
+          warehouse:
+            connect-timeout: 5000   # 5 секунд на установление соединения
+            read-timeout: 10000     # 10 секунд на ожидание ответа
 server:
   port: 0
 resilience4j:
