@@ -19,11 +19,18 @@ spring:
 server:
   port: 0
 resilience4j:
+  retry:
+    configs:
+      default:
+        max-attempts: 3               # количество попыток (включая первый вызов)
+        wait-duration: 1s             # пауза между попытками
+        enable-exponential-backoff: true
+        exponential-backoff-multiplier: 2
   circuitbreaker:
     configs:
       default:
-        sliding-window-size: 10
-        minimum-number-of-calls: 5
+        sliding-window-size: 50
+        minimum-number-of-calls: 10
         failure-rate-threshold: 50
         wait-duration-in-open-state: 10s
         permitted-number-of-calls-in-half-open-state: 3
