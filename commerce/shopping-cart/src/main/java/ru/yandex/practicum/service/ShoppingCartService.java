@@ -12,10 +12,7 @@ import ru.yandex.practicum.model.CartState;
 import ru.yandex.practicum.model.ShoppingCart;
 import ru.yandex.practicum.repository.ShoppingCartRepository;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,7 +35,7 @@ public class ShoppingCartService {
     @Transactional
     public ShoppingCartDto addProducts(String username, Map<UUID, Long> products) {
         log.info("Добавление товаров в корзину {}: {}", username, products.keySet());
-        ShoppingCart cart = getOrCreateActiveCart(username);
+        ShoppingCart cart = getActiveCart(username).orElseGet(() -> createCart(username));
 
         // Формируем предполагаемое новое содержимое корзины
         Map<UUID, Long> currentProducts = getProductsMap(cart);
@@ -60,22 +57,20 @@ public class ShoppingCartService {
         ShoppingCart cart = cartRepository.findByUsernameAndState(username, CartState.ACTIVE)
                 .orElseThrow(() -> new NoProductsInShoppingCartException("Нет активной корзины для деактивации"));
         cart.setState(CartState.DEACTIVATED);
-        cartRepository.save(cart);
     }
 
     @Transactional
     public ShoppingCartDto removeProducts(String username, List<UUID> productIds) {
         log.info("Удаление товаров из корзины {}: {}", username, productIds);
-        ShoppingCart cart = getOrCreateActiveCart(username);
+        ShoppingCart cart = getActiveCart(username).orElseGet(() -> createCart(username));
         cart.getItems().removeIf(item -> productIds.contains(item.getProductId()));
-        cartRepository.save(cart);
         return mapToDto(cart);
     }
 
     @Transactional
     public ShoppingCartDto changeQuantity(String username, UUID productId, long newQuantity) {
         log.info("Изменение количества товара {} в корзине {}: новое количество {}", productId, username, newQuantity);
-        ShoppingCart cart = getOrCreateActiveCart(username);
+        ShoppingCart cart = getActiveCart(username).orElseGet(() -> createCart(username));
         CartItem item = cart.getItems().stream()
                 .filter(i -> i.getProductId().equals(productId))
                 .findFirst()
@@ -85,7 +80,6 @@ public class ShoppingCartService {
         } else {
             item.setQuantity(newQuantity);
         }
-        cartRepository.save(cart);
         return mapToDto(cart);
     }
 
@@ -106,9 +100,8 @@ public class ShoppingCartService {
         return cartRepository.save(cart);
     }
 
-    private ShoppingCart getOrCreateActiveCart(String username) {
-        return cartRepository.findByUsernameAndState(username, CartState.ACTIVE)
-                .orElseGet(() -> createCart(username));
+    private Optional<ShoppingCart> getActiveCart(String username) {
+        return cartRepository.findByUsernameAndState(username, CartState.ACTIVE);
     }
 
     private void updateCartItems(ShoppingCart cart, Map<UUID, Long> products) {
