@@ -9,6 +9,7 @@ import ru.yandex.practicum.exception.NoSpecifiedProductInWarehouseException;
 import ru.yandex.practicum.exception.ProductInShoppingCartLowQuantityInWarehouse;
 import ru.yandex.practicum.exception.SpecifiedProductAlreadyInWarehouseException;
 import ru.yandex.practicum.feign.ShoppingStoreClient;
+import ru.yandex.practicum.mapper.WarehouseProductMapper;
 import ru.yandex.practicum.model.WarehouseProduct;
 import ru.yandex.practicum.repository.WarehouseProductRepository;
 
@@ -28,15 +29,7 @@ public class WarehouseService {
         if (productRepository.existsById(request.getProductId())) {
             throw new SpecifiedProductAlreadyInWarehouseException("Товар с таким ID уже зарегистрирован на складе");
         }
-        WarehouseProduct product = new WarehouseProduct();
-        product.setProductId(request.getProductId());
-        product.setFragile(request.isFragile());
-        DimensionDto dim = request.getDimension();
-        product.setWidth(dim.getWidth());
-        product.setHeight(dim.getHeight());
-        product.setDepth(dim.getDepth());
-        product.setWeight(request.getWeight());
-        product.setQuantity(0);
+        WarehouseProduct product = WarehouseProductMapper.toEntity(request);
         productRepository.save(product);
         updateQuantityState(product.getProductId(), 0);
         log.info("Товар {} зарегистрирован", request.getProductId());
@@ -67,7 +60,6 @@ public class WarehouseService {
             long requiredQty = entry.getValue();
             WarehouseProduct product = productRepository.findById(productId).orElseThrow();
             product.setQuantity(product.getQuantity() - requiredQty);
-            productRepository.save(product);
 
             // Обновляем статус в shopping-store
             updateQuantityState(productId, product.getQuantity());
@@ -88,7 +80,6 @@ public class WarehouseService {
                 .orElseThrow(() -> new NoSpecifiedProductInWarehouseException("Товар не зарегистрирован на складе"));
         long newQuantity = product.getQuantity() + request.getQuantity();
         product.setQuantity(newQuantity);
-        productRepository.save(product);
         updateQuantityState(product.getProductId(), newQuantity);
     }
 
