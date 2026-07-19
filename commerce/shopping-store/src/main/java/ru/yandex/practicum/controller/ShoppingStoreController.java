@@ -1,13 +1,13 @@
 package ru.yandex.practicum.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.dto.*;
+import ru.yandex.practicum.dto.PageProductDto;
+import ru.yandex.practicum.dto.ProductCategory;
+import ru.yandex.practicum.dto.ProductDto;
+import ru.yandex.practicum.dto.QuantityState;
 import ru.yandex.practicum.service.ShoppingStoreService;
 
-import java.io.IOException;
 import java.util.UUID;
 
 @RestController
@@ -16,7 +16,6 @@ import java.util.UUID;
 public class ShoppingStoreController {
 
     private final ShoppingStoreService service;
-    private final ObjectMapper objectMapper;
 
     @GetMapping
     public PageProductDto getProducts(
