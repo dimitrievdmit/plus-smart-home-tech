@@ -9,6 +9,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.dto.*;
 import ru.yandex.practicum.exception.ProductNotFoundException;
+import ru.yandex.practicum.mapper.ProductMapper;
 import ru.yandex.practicum.model.Product;
 import ru.yandex.practicum.repository.ProductRepository;
 
@@ -24,59 +25,26 @@ public class ShoppingStoreService {
 
     public ProductDto createProduct(ProductDto dto) {
         log.info("Создание нового товара: {}", dto.getProductName());
-        Product product = mapToEntity(dto);
+        Product product = ProductMapper.toEntity(dto);
         product.setProductState(dto.getProductState() != null ? dto.getProductState() : ProductState.ACTIVE);
         product.setQuantityState(dto.getQuantityState() != null ? dto.getQuantityState() : QuantityState.ENDED);
         product = productRepository.save(product);
         log.info("Товар создан с id: {}", product.getProductId());
-        return mapToDto(product);
+        return ProductMapper.toDto(product);
     }
 
     public ProductDto getProduct(UUID productId) {
         log.info("Запрос товара по id: {}", productId);
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException("Товар не найден"));
-        return mapToDto(product);
+        return ProductMapper.toDto(product);
     }
 
     public PageProductDto getProducts(ProductCategory category, int page, int size, String[] sort) {
         log.info("Запрос страницы товаров: категория={}, страница={}, размер={}", category, page, size);
         Pageable pageable = PageRequest.of(page, size, parseSort(sort));
         Page<Product> productPage = productRepository.findAllByProductCategory(category, pageable);
-
-        PageProductDto result = new PageProductDto();
-        result.setContent(productPage.getContent().stream().map(this::mapToDto).toList());
-        result.setTotalElements(productPage.getTotalElements());
-        result.setTotalPages(productPage.getTotalPages());
-        result.setFirst(productPage.isFirst());
-        result.setLast(productPage.isLast());
-        result.setSize(productPage.getSize());
-        result.setNumber(productPage.getNumber());
-        result.setNumberOfElements(productPage.getNumberOfElements());
-        result.setEmpty(productPage.isEmpty());
-
-        // Заполнение критериев сортировки
-        List<SortObject> sortObjects = productPage.getSort().stream()
-                .map(order -> new SortObject(
-                        order.getDirection().name(),
-                        order.getNullHandling().name(),
-                        order.isAscending(),
-                        order.getProperty(),
-                        order.isIgnoreCase()))
-                .toList();
-        result.setSort(sortObjects);
-
-        // Заполнение PageableObject
-        Pageable pageableInfo = productPage.getPageable();
-        result.setPageable(new PageableObject(
-                pageableInfo.getOffset(),
-                sortObjects,
-                pageableInfo.isUnpaged(),
-                pageableInfo.isPaged(),
-                pageableInfo.getPageNumber(),
-                pageableInfo.getPageSize()));
-
-        return result;
+        return ProductMapper.toPageProductDto(productPage);
     }
 
     public ProductDto updateProduct(ProductDto dto) {
@@ -92,7 +60,7 @@ public class ShoppingStoreService {
         product.setQuantityState(dto.getQuantityState() != null ? dto.getQuantityState() : product.getQuantityState());
         product = productRepository.save(product);
         log.info("Товар обновлён: {}", product.getProductId());
-        return mapToDto(product);
+        return ProductMapper.toDto(product);
     }
 
     public boolean removeProductFromStore(UUID productId) {
@@ -111,29 +79,6 @@ public class ShoppingStoreService {
         product.setQuantityState(quantityState);
         productRepository.save(product);
         return true;
-    }
-
-    private Product mapToEntity(ProductDto dto) {
-        Product product = new Product();
-        product.setProductName(dto.getProductName());
-        product.setDescription(dto.getDescription());
-        product.setImageSrc(dto.getImageSrc());
-        product.setProductCategory(dto.getProductCategory());
-        product.setPrice(dto.getPrice());
-        return product;
-    }
-
-    private ProductDto mapToDto(Product product) {
-        ProductDto dto = new ProductDto();
-        dto.setProductId(product.getProductId());
-        dto.setProductName(product.getProductName());
-        dto.setDescription(product.getDescription());
-        dto.setImageSrc(product.getImageSrc());
-        dto.setQuantityState(product.getQuantityState());
-        dto.setProductState(product.getProductState());
-        dto.setProductCategory(product.getProductCategory());
-        dto.setPrice(product.getPrice());
-        return dto;
     }
 
     private Sort parseSort(String[] sort) {
@@ -158,7 +103,6 @@ public class ShoppingStoreService {
                     orders.add(new Sort.Order(direction, pendingProperty));
                     pendingProperty = null;
                 }
-                // Если нет ожидающего свойства, игнорируем (или можно считать свойством с именем asc/desc, но это маловероятно)
             } else {
                 // Это новое свойство – если было незавершённое, фиксируем его с направлением по умолчанию
                 if (pendingProperty != null) {
