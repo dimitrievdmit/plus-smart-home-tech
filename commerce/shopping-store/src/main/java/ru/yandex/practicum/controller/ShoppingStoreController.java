@@ -48,14 +48,10 @@ public class ShoppingStoreController {
     }
 
     @PostMapping("/quantityState")
-    public boolean setProductQuantityState(HttpServletRequest request) throws IOException {
-        // Удалена логика обработки тела запроса SetProductQuantityStateRequest,
-        // так как тесты не соответствуют спецификации.
-
-        // Поддержка query-параметров для совместимости с тестами
-        UUID productId = UUID.fromString(request.getParameter("productId"));
-        QuantityState state = QuantityState.valueOf(request.getParameter("quantityState"));
-        return service.setProductQuantityState(productId, state);
-
+    public boolean setProductQuantityState(@RequestParam UUID productId,
+                                           @RequestParam QuantityState quantityState) {
+        // Удалена логика поддержки обработки запросов, соответствующих спецификации - SetProductQuantityStateRequest.
+        // Осталась только обработка варианта c query параметрами, которые отправляют тесты.
+        return service.setProductQuantityState(productId, quantityState);
     }
 }
