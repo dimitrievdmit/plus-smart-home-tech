@@ -12,6 +12,7 @@ import ru.yandex.practicum.exception.ProductNotFoundException;
 import ru.yandex.practicum.mapper.ProductMapper;
 import ru.yandex.practicum.model.Product;
 import ru.yandex.practicum.repository.ProductRepository;
+import ru.yandex.practicum.util.SortParser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +43,7 @@ public class ShoppingStoreService {
 
     public PageProductDto getProducts(ProductCategory category, int page, int size, String[] sort) {
         log.info("Запрос страницы товаров: категория={}, страница={}, размер={}", category, page, size);
-        Pageable pageable = PageRequest.of(page, size, parseSort(sort));
+        Pageable pageable = PageRequest.of(page, size, SortParser.parseSort(sort));
         Page<Product> productPage = productRepository.findAllByProductCategory(category, pageable);
         return ProductMapper.toPageProductDto(productPage);
     }
