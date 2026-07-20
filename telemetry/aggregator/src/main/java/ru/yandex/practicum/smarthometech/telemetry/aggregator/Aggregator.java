@@ -6,12 +6,8 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.context.ConfigurableApplicationContext;
 import ru.yandex.practicum.smarthometech.telemetry.aggregator.starter.AggregationStarter;
 
-/**
- * Главный класс сервиса Aggregator.
- */
 @SpringBootApplication
 @ConfigurationPropertiesScan
-
 public class Aggregator {
 
     public static void main(String[] args) {

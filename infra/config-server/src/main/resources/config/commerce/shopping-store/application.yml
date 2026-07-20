@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: shopping-store
+  datasource:
+    url: jdbc:postgresql://localhost:5432/smart_home
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  sql:
+    init:
+      mode: always
+server:
+  port: 0
