@@ -9,8 +9,8 @@ import ru.yandex.practicum.dto.SetProductQuantityStateRequest;
 import ru.yandex.practicum.feign.fallback.ShoppingStoreClientFallback;
 
 import java.util.UUID;
-
-@FeignClient(name = "shopping-store", fallback = ShoppingStoreClientFallback.class)
+@FeignClient(name = "shopping-store", fallback = ShoppingStoreClientFallback.class,
+        configuration = FeignConfig.class)
 public interface ShoppingStoreClient {
 
     @GetMapping("/api/v1/shopping-store")

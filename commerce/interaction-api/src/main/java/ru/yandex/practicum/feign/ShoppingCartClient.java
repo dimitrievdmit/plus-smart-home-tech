@@ -10,7 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-@FeignClient(name = "shopping-cart", fallback = ShoppingCartClientFallback.class)
+@FeignClient(name = "shopping-cart", fallback = ShoppingCartClientFallback.class,
+        configuration = FeignConfig.class)
 public interface ShoppingCartClient {
 
     @GetMapping("/api/v1/shopping-cart")
