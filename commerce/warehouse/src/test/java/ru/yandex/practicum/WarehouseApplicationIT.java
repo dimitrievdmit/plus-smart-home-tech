@@ -1,5 +1,6 @@
 package ru.yandex.practicum;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -137,6 +138,7 @@ class WarehouseApplicationIT {
         );
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         BookedProductsDto booked = response.getBody();
+        Assertions.assertNotNull(booked);
         assertThat(booked.getDeliveryWeight()).isGreaterThan(0);
         assertThat(booked.getDeliveryVolume()).isGreaterThan(0);
         assertThat(booked.isFragile()).isFalse();
@@ -174,6 +176,7 @@ class WarehouseApplicationIT {
         );
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         AddressDto address = response.getBody();
+        Assertions.assertNotNull(address);
         assertThat(address.getCountry()).isNotNull();
         assertThat(address.getCity()).isNotNull();
     }
