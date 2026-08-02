@@ -17,11 +17,11 @@ public interface DeliveryApi {
     Double deliveryCost(@RequestBody OrderDto order);
 
     @PostMapping("/api/v1/delivery/picked")
-    public void deliveryPicked(@RequestBody UUID orderId);
+    void deliveryPicked(@RequestBody UUID orderId);
 
     @PostMapping("/api/v1/delivery/successful")
-    public void deliverySuccessful(@RequestBody UUID orderId);
+    void deliverySuccessful(@RequestBody UUID orderId);
 
     @PostMapping("/api/v1/delivery/failed")
-    public void deliveryFailed(@RequestBody UUID orderId);
+    void deliveryFailed(@RequestBody UUID orderId);
 }

@@ -18,9 +18,9 @@ public interface PaymentApi {
     @PostMapping("/api/v1/payment")
     PaymentDto payment(@RequestBody OrderDto order);
 
-    @PostMapping("/refund")
-    public void paymentSuccess(@RequestBody UUID paymentId);
+    @PostMapping("/api/v1/payment/refund")
+    void paymentSuccess(@RequestBody UUID paymentId);
 
-    @PostMapping("/failed")
-    public void paymentFailed(@RequestBody UUID paymentId);
+    @PostMapping("/api/v1/payment/failed")
+    void paymentFailed(@RequestBody UUID paymentId);
 }

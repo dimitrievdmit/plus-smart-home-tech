@@ -39,7 +39,7 @@ public class PaymentService {
         for (Map.Entry<UUID, Long> entry : order.getProducts().entrySet()) {
             UUID productId = entry.getKey();
             long quantity = entry.getValue();
-            Double price = storeClient.getProduct(productId).getPrice();
+            double price = storeClient.getProduct(productId).getPrice();
             total += price * quantity;
         }
         return total;
@@ -64,7 +64,7 @@ public class PaymentService {
             throw new NotEnoughInfoInOrderToCalculateException("Не указана стоимость доставки");
         }
         Double tax = productPrice * taxRate;
-        Double total = productPrice + tax + deliveryPrice;
+        double total = productPrice + tax + deliveryPrice;
 
         Payment payment = PaymentMapper.toEntity(order, productPrice, deliveryPrice, tax, total);
         payment = paymentRepository.save(payment);

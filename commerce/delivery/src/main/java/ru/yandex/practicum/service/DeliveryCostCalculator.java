@@ -42,7 +42,7 @@ public class DeliveryCostCalculator {
             throw new IllegalArgumentException("Адрес доставки не указан в заказе " + order.getOrderId());
         }
 
-        double cost = baseCost;
+        double cost;
 
         String warehouseStreet = warehouseAddress.getStreet();
         if (warehouseStreet != null && warehouseStreet.contains(ADDRESS_1)) {
