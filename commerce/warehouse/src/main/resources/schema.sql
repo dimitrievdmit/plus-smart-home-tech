@@ -7,3 +7,11 @@ CREATE TABLE IF NOT EXISTS warehouse_product (
     depth DOUBLE PRECISION NOT NULL,
     weight DOUBLE PRECISION NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS order_bookings (
+    id UUID PRIMARY KEY,
+    order_id UUID NOT NULL,
+    product_id UUID NOT NULL,
+    quantity BIGINT NOT NULL,
+    delivery_id UUID
+);

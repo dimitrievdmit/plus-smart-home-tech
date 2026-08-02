@@ -1,0 +1,53 @@
+spring:
+  application:
+    name: payment
+  datasource:
+    url: jdbc:postgresql://localhost:5432/smart_home
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  sql:
+    init:
+      mode: always
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
+      client:
+        config:
+          warehouse:
+            connect-timeout: 5000   # 5 секунд на установление соединения
+            read-timeout: 10000     # 10 секунд на ожидание ответа
+server:
+  port: 0
+resilience4j:
+  retry:
+    configs:
+      default:
+        max-attempts: 3               # количество попыток (включая первый вызов)
+        wait-duration: 1s             # пауза между попытками
+        enable-exponential-backoff: true
+        exponential-backoff-multiplier: 2
+  circuitbreaker:
+    configs:
+      default:
+        sliding-window-size: 50
+        minimum-number-of-calls: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 5
+    instances:
+      warehouse:
+        base-config: default
+  timelimiter:
+    configs:
+      default:
+        timeout-duration: 5s
+    instances:
+      warehouse:
+        base-config: default
+payment:
+  tax-rate: 0.1

@@ -73,6 +73,11 @@ public class ShoppingStoreService {
         return true;
     }
 
+    public boolean setProductQuantityState(SetProductQuantityStateRequest request) {
+        // обработка варианта по спецификации.
+        return setProductQuantityState(request.getProductId(), request.getQuantityState());
+    }
+
     public boolean setProductQuantityState(UUID productId, QuantityState quantityState) {
         log.info("Изменение статуса количества товара {} на {}", productId, quantityState);
         Product product = productRepository.findById(productId)

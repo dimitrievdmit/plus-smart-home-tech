@@ -1,7 +1,11 @@
 package ru.yandex.practicum.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import ru.yandex.practicum.api.ShoppingCartApi;
 import ru.yandex.practicum.dto.ChangeProductQuantityRequest;
 import ru.yandex.practicum.dto.ShoppingCartDto;
 import ru.yandex.practicum.exception.NotAuthorizedUserException;
@@ -14,36 +18,36 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/shopping-cart")
 @RequiredArgsConstructor
-public class ShoppingCartController {
+public class ShoppingCartController implements ShoppingCartApi {
     private final ShoppingCartService service;
 
-    @GetMapping
+    @Override
     public ShoppingCartDto getShoppingCart(@RequestParam("username") String username) {
         checkUsername(username);
         return service.getCart(username);
     }
 
-    @PutMapping
+    @Override
     public ShoppingCartDto addProductToShoppingCart(@RequestParam("username") String username,
                                                     @RequestBody Map<UUID, Long> products) {
         checkUsername(username);
         return service.addProducts(username, products);
     }
 
-    @DeleteMapping
+    @Override
     public void deactivateCurrentShoppingCart(@RequestParam("username") String username) {
         checkUsername(username);
         service.deactivateCart(username);
     }
 
-    @PostMapping("/remove")
+    @Override
     public ShoppingCartDto removeFromShoppingCart(@RequestParam("username") String username,
                                                   @RequestBody List<UUID> productIds) {
         checkUsername(username);
         return service.removeProducts(username, productIds);
     }
 
-    @PostMapping("/change-quantity")
+    @Override
     public ShoppingCartDto changeProductQuantity(@RequestParam("username") String username,
                                                  @RequestBody ChangeProductQuantityRequest request) {
         checkUsername(username);
@@ -52,7 +56,7 @@ public class ShoppingCartController {
 
     // В спецификации такого метода нет, но
     // ТЗ требует возможность просматривать уже добавленные позиции в деактивированных корзинах
-    @GetMapping("/history")
+    @Override
     public List<ShoppingCartDto> getDeactivatedCarts(@RequestParam("username") String username) {
         checkUsername(username);
         return service.getDeactivatedCarts(username);
