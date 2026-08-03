@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS orders (
     delivery_address_house VARCHAR(255),
     delivery_address_flat VARCHAR(255)
 );
+CREATE INDEX IF NOT EXISTS idx_orders_username ON orders(username);
 
 CREATE TABLE IF NOT EXISTS order_products (
     order_id UUID REFERENCES orders(order_id),

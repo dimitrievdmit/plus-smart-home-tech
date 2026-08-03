@@ -15,3 +15,4 @@ CREATE TABLE IF NOT EXISTS order_bookings (
     quantity BIGINT NOT NULL,
     delivery_id UUID
 );
+CREATE INDEX IF NOT EXISTS idx_order_bookings_order_id ON order_bookings(order_id);
