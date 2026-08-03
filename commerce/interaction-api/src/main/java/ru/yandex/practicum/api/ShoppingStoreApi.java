@@ -28,10 +28,6 @@ public interface ShoppingStoreApi {
     @PostMapping("/api/v1/shopping-store/removeProductFromStore")
     boolean removeProductFromStore(@RequestBody UUID productId);
 
-//    //    АПИ по спецификации
-//    @PostMapping("/api/v1/shopping-store/quantityState")
-//    boolean setProductQuantityState(@RequestBody SetProductQuantityStateRequest request);
-
     //    АПИ по тестам
     @PostMapping("/api/v1/shopping-store/quantityState")
     boolean setProductQuantityState(@RequestParam UUID productId, @RequestParam QuantityState quantityState);

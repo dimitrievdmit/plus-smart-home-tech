@@ -39,11 +39,6 @@ public class ShoppingStoreClientFallback implements ShoppingStoreClient {
         throw new ServiceUnavailableException(SERVICE_NAME);
     }
 
-//    @Override
-//    public boolean setProductQuantityState(SetProductQuantityStateRequest request) {
-//        throw new ServiceUnavailableException(SERVICE_NAME);
-//    }
-
     @Override
     public boolean setProductQuantityState(UUID productId, QuantityState quantityState) {
         throw new ServiceUnavailableException(SERVICE_NAME);

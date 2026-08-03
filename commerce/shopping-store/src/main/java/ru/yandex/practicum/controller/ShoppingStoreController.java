@@ -47,12 +47,6 @@ public class ShoppingStoreController implements ShoppingStoreApi {
         return service.removeProductFromStore(productId);
     }
 
-//    @Override
-//    public boolean setProductQuantityState(@RequestBody SetProductQuantityStateRequest request) {
-//        // обработка варианта по спецификации.
-//        return service.setProductQuantityState(request);
-//    }
-
     @Override
     public boolean setProductQuantityState(@RequestParam UUID productId,
                                            @RequestParam QuantityState quantityState) {
