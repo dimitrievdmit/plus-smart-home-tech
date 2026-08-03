@@ -12,21 +12,9 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class OrderExceptionHandler {
 
-    @ExceptionHandler(NoOrderFoundException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleNoOrder(NoOrderFoundException ex) {
-        return new ErrorResponse(ex.getMessage());
-    }
-
     @ExceptionHandler(NotAuthorizedUserException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ErrorResponse handleUnauthorized(NotAuthorizedUserException ex) {
-        return new ErrorResponse(ex.getMessage());
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleIllegalArg(IllegalArgumentException ex) {
         return new ErrorResponse(ex.getMessage());
     }
 
@@ -36,18 +24,24 @@ public class OrderExceptionHandler {
         return new ErrorResponse(ex.getMessage());
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ExceptionHandler({
+            NoOrderFoundException.class,
+            IllegalArgumentException.class,
+            MethodArgumentNotValidException.class,
+            HttpMessageNotReadableException.class
+    })
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleValidation(MethodArgumentNotValidException ex) {
-        String message = ex.getBindingResult().getFieldErrors().stream()
-                .map(fe -> fe.getField() + " " + fe.getDefaultMessage())
-                .collect(Collectors.joining(", "));
+    public ErrorResponse handleBadRequest(Exception ex) {
+        String message;
+        if (ex instanceof MethodArgumentNotValidException) {
+            message = ((MethodArgumentNotValidException) ex).getBindingResult().getFieldErrors().stream()
+                    .map(fe -> fe.getField() + " " + fe.getDefaultMessage())
+                    .collect(Collectors.joining(", "));
+        } else if (ex instanceof HttpMessageNotReadableException) {
+            message = "Malformed JSON request: " + ((HttpMessageNotReadableException) ex).getMostSpecificCause().getMessage();
+        } else {
+            message = ex.getMessage();
+        }
         return new ErrorResponse(message);
-    }
-
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleMalformedJson(HttpMessageNotReadableException ex) {
-        return new ErrorResponse("Malformed JSON request: " + ex.getMostSpecificCause().getMessage());
     }
 }
