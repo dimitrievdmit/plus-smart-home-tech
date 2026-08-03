@@ -15,8 +15,10 @@ import java.util.UUID;
 @AllArgsConstructor
 public class Delivery {
     @Id
+    @Column(name = "delivery_id")
     private UUID deliveryId;
 
+    @Column(name = "order_id")
     private UUID orderId;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -28,5 +30,6 @@ public class Delivery {
     private Address toAddress;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "delivery_state")
     private DeliveryState deliveryState;
 }

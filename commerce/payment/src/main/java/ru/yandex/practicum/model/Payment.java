@@ -15,15 +15,25 @@ import java.util.UUID;
 @AllArgsConstructor
 public class Payment {
     @Id
+    @Column(name = "payment_id")
     private UUID paymentId;
 
+    @Column(name = "order_id")
     private UUID orderId;
 
+    @Column(name = "product_cost")
     private Double productCost;
+
+    @Column(name = "delivery_cost")
     private Double deliveryCost;
+
+    @Column(name = "fee")
     private Double fee;
+
+    @Column(name = "total_cost")
     private Double totalCost;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "status")
     private PaymentStatus status;
 }

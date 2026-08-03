@@ -1,5 +1,6 @@
 package ru.yandex.practicum.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -16,10 +17,18 @@ import java.util.UUID;
 @AllArgsConstructor
 public class OrderBooking {
     @Id
-    private UUID id;                // уникальный идентификатор записи бронирования
+    @Column(name = "id")
+    private UUID id;
 
-    private UUID orderId;           // идентификатор заказа
-    private UUID productId;         // идентификатор товара
-    private long quantity;          // зарезервированное количество
-    private UUID deliveryId;        // идентификатор доставки (может быть null до передачи в доставку)
+    @Column(name = "order_id")
+    private UUID orderId;
+
+    @Column(name = "product_id")
+    private UUID productId;
+
+    @Column(name = "quantity")
+    private long quantity;
+
+    @Column(name = "delivery_id")
+    private UUID deliveryId;
 }
