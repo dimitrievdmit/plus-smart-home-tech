@@ -18,9 +18,9 @@ spring:
         enabled: true
       client:
         config:
-           shopping-store:
-             connect-timeout: 5000   # 5 секунд на установление соединения
-             read-timeout: 10000     # 10 секунд на ожидание ответа
+          shopping-store:
+            connect-timeout: 5000   # 5 секунд на установление соединения
+            read-timeout: 10000     # 10 секунд на ожидание ответа
 server:
   port: 0
 resilience4j:
@@ -49,3 +49,6 @@ resilience4j:
     instances:
       shopping-store:
         base-config: default
+warehouse:
+  few-threshold: 10
+  enough-threshold: 100

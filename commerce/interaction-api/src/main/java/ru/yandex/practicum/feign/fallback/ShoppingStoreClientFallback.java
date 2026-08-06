@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.dto.PageProductDto;
 import ru.yandex.practicum.dto.ProductCategory;
 import ru.yandex.practicum.dto.ProductDto;
-import ru.yandex.practicum.dto.SetProductQuantityStateRequest;
+import ru.yandex.practicum.dto.QuantityState;
 import ru.yandex.practicum.exception.ServiceUnavailableException;
 import ru.yandex.practicum.feign.ShoppingStoreClient;
 
@@ -40,7 +40,7 @@ public class ShoppingStoreClientFallback implements ShoppingStoreClient {
     }
 
     @Override
-    public boolean setProductQuantityState(SetProductQuantityStateRequest request) {
+    public boolean setProductQuantityState(UUID productId, QuantityState quantityState) {
         throw new ServiceUnavailableException(SERVICE_NAME);
     }
 }

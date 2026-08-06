@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.dto.*;
 import ru.yandex.practicum.exception.ProductNotFoundException;
@@ -14,8 +13,6 @@ import ru.yandex.practicum.model.Product;
 import ru.yandex.practicum.repository.ProductRepository;
 import ru.yandex.practicum.util.SortParser;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -80,44 +77,5 @@ public class ShoppingStoreService {
         product.setQuantityState(quantityState);
         productRepository.save(product);
         return true;
-    }
-
-    private Sort parseSort(String[] sort) {
-        if (sort == null || sort.length == 0) {
-            return Sort.unsorted();
-        }
-
-        List<Sort.Order> orders = new ArrayList<>();
-        String pendingProperty = null;
-
-        for (String token : sort) {
-            if (token == null || token.isBlank()) {
-                continue;
-            }
-            String trimmed = token.trim();
-            String lower = trimmed.toLowerCase();
-
-            if ("asc".equals(lower) || "desc".equals(lower)) {
-                // Это направление – применяем к предыдущему свойству
-                if (pendingProperty != null) {
-                    Sort.Direction direction = "desc".equals(lower) ? Sort.Direction.DESC : Sort.Direction.ASC;
-                    orders.add(new Sort.Order(direction, pendingProperty));
-                    pendingProperty = null;
-                }
-            } else {
-                // Это новое свойство – если было незавершённое, фиксируем его с направлением по умолчанию
-                if (pendingProperty != null) {
-                    orders.add(new Sort.Order(Sort.Direction.ASC, pendingProperty));
-                }
-                pendingProperty = trimmed;
-            }
-        }
-        // Обрабатываем последнее ожидающее свойство
-        if (pendingProperty != null) {
-            orders.add(new Sort.Order(Sort.Direction.ASC, pendingProperty));
-        }
-
-        log.info("Разобранные параметры сортировки: {}", orders);
-        return Sort.by(orders);
     }
 }

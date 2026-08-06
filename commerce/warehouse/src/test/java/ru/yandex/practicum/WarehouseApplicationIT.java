@@ -1,5 +1,6 @@
 package ru.yandex.practicum;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,11 +8,16 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import ru.yandex.practicum.dto.*;
 import ru.yandex.practicum.feign.ShoppingStoreClient;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -35,11 +41,12 @@ class WarehouseApplicationIT {
     void setUp() {
         baseUrl = "http://localhost:" + port + "/api/v1/warehouse";
         // По умолчанию вызов setProductQuantityState ничего не делает (возвращаем true)
-        when(shoppingStoreClient.setProductQuantityState(any())).thenReturn(true);
+        when(shoppingStoreClient.setProductQuantityState(any(), any())).thenReturn(true);
     }
 
     @Test
-    void contextLoads() {}
+    void contextLoads() {
+    }
 
     @Test
     void shouldAddNewProductToWarehouse() {
@@ -67,7 +74,7 @@ class WarehouseApplicationIT {
         request.setProductId(productId);
         request.setFragile(false);
         request.setWeight(1);
-        request.setDimension(new DimensionDto(1,1,1));
+        request.setDimension(new DimensionDto(1, 1, 1));
 
         restTemplate.put(baseUrl, request);
         ResponseEntity<String> second = restTemplate.exchange(
@@ -87,7 +94,7 @@ class WarehouseApplicationIT {
         newReq.setProductId(productId);
         newReq.setFragile(false);
         newReq.setWeight(1);
-        newReq.setDimension(new DimensionDto(1,1,1));
+        newReq.setDimension(new DimensionDto(1, 1, 1));
         restTemplate.put(baseUrl, newReq);
 
         // Добавляем количество
@@ -109,7 +116,7 @@ class WarehouseApplicationIT {
         newReq.setProductId(productId);
         newReq.setFragile(false);
         newReq.setWeight(0.5);
-        newReq.setDimension(new DimensionDto(2,2,2));
+        newReq.setDimension(new DimensionDto(2, 2, 2));
         restTemplate.put(baseUrl, newReq);
 
         // Добавляем количество 5
@@ -131,6 +138,7 @@ class WarehouseApplicationIT {
         );
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         BookedProductsDto booked = response.getBody();
+        Assertions.assertNotNull(booked);
         assertThat(booked.getDeliveryWeight()).isGreaterThan(0);
         assertThat(booked.getDeliveryVolume()).isGreaterThan(0);
         assertThat(booked.isFragile()).isFalse();
@@ -143,7 +151,7 @@ class WarehouseApplicationIT {
         newReq.setProductId(productId);
         newReq.setFragile(false);
         newReq.setWeight(1);
-        newReq.setDimension(new DimensionDto(1,1,1));
+        newReq.setDimension(new DimensionDto(1, 1, 1));
         restTemplate.put(baseUrl, newReq);
         // Количество не добавляем (0)
 
@@ -168,6 +176,7 @@ class WarehouseApplicationIT {
         );
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         AddressDto address = response.getBody();
+        Assertions.assertNotNull(address);
         assertThat(address.getCountry()).isNotNull();
         assertThat(address.getCity()).isNotNull();
     }
